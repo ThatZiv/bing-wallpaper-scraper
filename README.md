@@ -23,7 +23,7 @@ example:
 ### Use public Docker image
 
 ```sh
-docker run --rm -v "$PWD/wallpapers":/app/wallpapers ghrc.io/thatziv/bing-wallpaper-scraper:latest
+docker run --rm -v "$PWD/wallpapers":/app/wallpapers ghcr.io/thatziv/bing-wallpaper-scraper:latest
 ```
 
 ### Build it yourself w/ Docker
