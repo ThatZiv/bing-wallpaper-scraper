@@ -26,6 +26,12 @@ example:
 docker run --rm -v "$PWD/wallpapers":/app/wallpapers ghcr.io/thatziv/bing-wallpaper-scraper:latest
 ```
 
+or w/ arguments
+
+```sh
+docker run --rm -v "$PWD/wallpapers":/app/wallpapers ghcr.io/thatziv/bing-wallpaper-scraper:latest --blacklist_years "2018,2019,2020,2021,2022"
+```
+
 ### Build it yourself w/ Docker
 
 ```sh
