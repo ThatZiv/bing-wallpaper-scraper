@@ -1,10 +1,16 @@
-from typing import Literal
-import numpy as np
-import os
+# pylint: disable=line-too-long
+"""
+Utilities file
+"""
 import argparse
+import os
 import re
+from typing import Literal
 
-def parse_args() -> tuple[set[str], set[str]]:
+import numpy as np
+
+
+def parse_args() -> tuple[set[str], set[str], str]:
     """Parse command line arguments"""
     parser = argparse.ArgumentParser("Bing \"Image of The Day\" Archive Scraper")
     parser.add_argument("-y", "--blacklist_years", nargs="?",
@@ -46,10 +52,11 @@ def is_bright_image(image, region: Literal['bottom_right'] | Literal['top_half']
     luminance = 0.2126 * avg_r + 0.7152 * avg_g + 0.0722 * avg_b
     return luminance > 140 # arbitrary threshold
 
-def get_already_downloaded(dir: str, blacklist: list[str]) -> set[str]:
+
+def get_already_downloaded(wallpaper_dir: str, blacklist: list[str]) -> set[str]:
     """Get a set of all the dates that have already been downloaded"""
     downloaded = set(blacklist)
-    for filename in os.listdir(dir):
+    for filename in os.listdir(wallpaper_dir):
         if filename.endswith(".png"):
             downloaded.add(filename[:-4])
     return downloaded

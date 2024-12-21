@@ -1,6 +1,7 @@
+# pylint: disable=line-too-long,too-many-locals
+"""Scrape the Bing wallpaper archive and download respective images"""
 import os
 import re
-import sys
 from datetime import datetime
 from io import BytesIO
 
@@ -18,7 +19,7 @@ primary_font = ImageFont.truetype("IBMPlexSans-Regular.ttf", 35)
 secondary_font = ImageFont.truetype("IBMPlexSans-Regular.ttf", 20)
 
 def main() -> None:
-    """Scrape the Bing wallpaper archive and download respective images"""
+    """Entrypoint"""
     base_url = "https://bing.gifposter.com"
     archive_url = f"{base_url}/archive/{datetime.now().strftime('%Y%m')}.html" # starting point
     os.makedirs(wallpaper_dir, exist_ok=True)
@@ -26,7 +27,7 @@ def main() -> None:
     soup = BeautifulSoup(res.text, "html.parser")
     start = datetime.now()
     print("Checking for already downloaded images...")
-    done = get_already_downloaded(dir=wallpaper_dir, blacklist=bad_days)
+    done = get_already_downloaded(wallpaper_dir=wallpaper_dir, blacklist=bad_days)
     print(f"Found {len(done)} images.")
     print("Ignoring years: ", str(bad_years) if len(bad_years) > 0 else "None")
     print("Ignoring days: ", str(bad_days) if len(bad_days) > 0 else "None")
@@ -57,14 +58,17 @@ def main() -> None:
                     img = Image.open(BytesIO(img_res.content))
                     draw = ImageDraw.Draw(img)
 
-                    color = (0, 0, 0, 180) if is_bright_image(img, region='bottom_right') else (255, 255, 255, 150)
-                    draw.text((img.width - 35, img.height - 100), f"{location}", font=primary_font, fill=color, anchor="rt")
-                    draw.text((img.width - 35, img.height - 125), f"{formatted_date}", font=secondary_font, fill=color, anchor="rt")
+                    color = (0, 0, 0, 180) if is_bright_image(img, region='bottom_right') \
+                        else (255, 255, 255, 150)
+                    draw.text((img.width - 35, img.height - 100),
+                              f"{location}", font=primary_font, fill=color, anchor="rt")
+                    draw.text((img.width - 35, img.height - 125),
+                              f"{formatted_date}", font=secondary_font, fill=color, anchor="rt")
                     img.save(f"{wallpaper_dir}/{date}.png")
                     print(f"Saved {date}.png")
                     done.add(date)
-
     print(f"Finished in: {(datetime.now() - start).total_seconds()//60}m")
+
 
 if __name__ == "__main__":
     main()
