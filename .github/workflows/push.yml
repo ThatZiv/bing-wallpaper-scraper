@@ -46,4 +46,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: "${{ github.actor }}/bing-wallpaper-scraper:latest"
+          tags: "thatziv/bing-wallpaper-scraper:latest"
