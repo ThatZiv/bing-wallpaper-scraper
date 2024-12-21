@@ -37,6 +37,7 @@ docker run --rm -v "$PWD/wallpapers":/app/wallpapers ghcr.io/thatziv/bing-wallpa
 ```sh
 # clone repo
 git clone https://github.com/thatziv/bing-wallpaper-scraper
+cd bing-wallpaper-scraper
 
 # build docker image
 docker build -t bing-wallpaper-scraper .
@@ -50,7 +51,7 @@ docker run --rm -v "$PWD/wallpapers":/app/wallpapers bing-wallpaper-scraper
 ```sh
 # clone repo
 git clone https://github.com/thatziv/bing-wallpaper-scraper
-
+cd bing-wallpaper-scraper
 # Install requirements
 python -m pip install -r requirements.txt
 
