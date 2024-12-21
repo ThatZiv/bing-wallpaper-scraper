@@ -1,6 +1,32 @@
 from typing import Literal
 import numpy as np
 import os
+import argparse
+import re
+
+def parse_args() -> tuple[set[str], set[str]]:
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser("Bing \"Image of The Day\" Archive Scraper")
+    parser.add_argument("-y", "--blacklist_years", nargs="?",
+                        help="What year(s) do you want to NOT download.\nFormat: YYYY or YYYY,YYYY,YYYY for multiple years",
+                        type=str)
+    parser.add_argument("-d", "--blacklist_days", nargs="?",
+                        help="What specific days to you want to NOT download.\nFormat: YYYY-DD-MM or YYYY-DD-MM,YYYY-DD-MM for multiple days",
+                        type=str)
+    parser.add_argument("-w", "--dir", default="wallpapers")
+    args = parser.parse_args()
+    years = args.blacklist_years or set()
+    days = args.blacklist_days or set()
+    if args.blacklist_years:
+        years = set(years.split(","))
+        for year in years:
+            assert re.match(r"\d{4}", year), f"Invalid year format: {year}"
+    if args.blacklist_days:
+        days = set(days.split(","))
+        for day in days:
+            assert re.match(r"\d{4}-\d{2}-\d{2}", day), f"Invalid day format: {day}"
+
+    return years, days, args.dir
 
 def is_bright_image(image, region: Literal['bottom_right'] | Literal['top_half'] | Literal['bottom_half'] | Literal['bottom_left'] | None) -> bool:
     """Determine if an image is overall bright or dark"""

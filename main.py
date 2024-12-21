@@ -1,16 +1,18 @@
+import os
+import re
+import sys
+from datetime import datetime
+from io import BytesIO
+
 import requests
 from bs4 import BeautifulSoup
 from PIL import Image, ImageDraw, ImageFont
-from datetime import datetime
-from io import BytesIO
-import os
-import sys
-from utils import is_bright_image, get_already_downloaded
 
-WALLPAPER_DEFAULT_DIR = "wallpapers"
-BLACKLISTED = ["2020-07-17"]
+from utils import get_already_downloaded, is_bright_image, parse_args
+
+bad_years,bad_days,wallpaper_dir = parse_args()
 # get from environment variable, or command line argument, or new folder called wallpapers
-wallpaper_dir = os.environ.get("WALLPAPER_DIR", sys.argv[1] if len(sys.argv) > 1 else WALLPAPER_DEFAULT_DIR)
+wallpaper_dir = os.environ.get("WALLPAPER_DIR", wallpaper_dir)
 
 primary_font = ImageFont.truetype("IBMPlexSans-Regular.ttf", 35)
 secondary_font = ImageFont.truetype("IBMPlexSans-Regular.ttf", 20)
@@ -18,18 +20,22 @@ secondary_font = ImageFont.truetype("IBMPlexSans-Regular.ttf", 20)
 def main() -> None:
     """Scrape the Bing wallpaper archive and download respective images"""
     base_url = "https://bing.gifposter.com"
-    archive_url = f"https://bing.gifposter.com/archive/{datetime.now().strftime('%Y%m')}.html" # starting point
+    archive_url = f"{base_url}/archive/{datetime.now().strftime('%Y%m')}.html" # starting point
     os.makedirs(wallpaper_dir, exist_ok=True)
     res = requests.get(archive_url, timeout=10)
     soup = BeautifulSoup(res.text, "html.parser")
     start = datetime.now()
     print("Checking for already downloaded images...")
-    done = get_already_downloaded(dir=wallpaper_dir, blacklist=BLACKLISTED)
+    done = get_already_downloaded(dir=wallpaper_dir, blacklist=bad_days)
     print(f"Found {len(done)} images.")
+    print("Ignoring years: ", str(bad_years) if len(bad_years) > 0 else "None")
+    print("Ignoring days: ", str(bad_days) if len(bad_days) > 0 else "None")
     for a in soup.find_all("a"):
-        # TODO: this high level scraping isn't really necessary
         month_ref = a.get("href")
         if month_ref.startswith("/archive/") and month_ref.endswith(".html"):
+            year_val = re.search(r"\d{6}",str(month_ref)).group()[:4]
+            if year_val in bad_years: # skip a blacklisted year before any further month reqs
+                continue
             month_page = base_url + month_ref
             res = requests.get(month_page, timeout=15)
             _soup = BeautifulSoup(res.text, "html.parser")
